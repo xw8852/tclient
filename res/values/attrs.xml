@@ -3,4 +3,12 @@
     <declare-styleable name="TitleView">
         <attr name="Title" format="string" localization="suggested"/>
     </declare-styleable>
+    <declare-styleable name="CircleRectShape">
+        <attr name="CircleStartAngle" format="integer" />.
+        <attr name="AngleLength" format="integer" />.
+        <attr name="CircleAnimDuration" format="integer" />
+        <attr name="CircleDrawable" format="reference"/>
+        <attr name="DrawableHeight" format="dimension"/>
+        <attr name="ArcWidth" format="dimension"/>
+    </declare-styleable>
 </resources>

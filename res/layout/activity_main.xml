@@ -3,11 +3,80 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background"
     android:orientation="vertical">
 
     <com.msx7.android.tclient.ui.widget.TitleView
         android:layout_width="match_parent"
-        app:Title="VXXXXBOX"
-        android:layout_height="wrap_content" />
+        android:id="@+id/titleBar"
+        android:layout_height="wrap_content"
+        app:Title="VXXXXBOX" />
 
+    <FrameLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"></FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:id="@+id/bottomBar"
+        android:minHeight="@dimen/action_bar_height"
+        android:background="@drawable/footer"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/btn1"
+            android:scaleType="centerInside"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:button="@null"
+            android:gravity="center"
+            android:src="@drawable/selected_btn_home" />
+
+        <ImageView
+            android:scaleType="centerInside"
+            android:id="@+id/btn2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:button="@null"
+            android:gravity="center"
+            android:src="@drawable/selected_btn_vol" />
+
+        <ImageView
+            android:scaleType="centerInside"
+            android:id="@+id/btn3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:button="@null"
+            android:gravity="center"
+            android:src="@drawable/selected_btn_touch" />
+
+        <ImageView
+            android:id="@+id/btn4"
+            android:scaleType="centerInside"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:button="@null"
+            android:gravity="center"
+            android:src="@drawable/selected_btn_camera" />
+
+        <ImageView
+            android:id="@+id/btn5"
+            android:layout_width="match_parent"
+            android:scaleType="centerInside"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:button="@null"
+            android:gravity="center"
+            android:src="@drawable/selected_btn_return" />
+
+
+    </LinearLayout>
 </LinearLayout>
