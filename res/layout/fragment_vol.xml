@@ -7,25 +7,101 @@
     android:orientation="horizontal">
 
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
+        android:layout_weight="1"
         android:gravity="center"
-        android:layout_weight="1">
+        android:orientation="vertical"
+        android:padding="10dp">
 
         <com.msx7.android.tclient.ui.widget.CircleRectShape
             android:layout_width="match_parent"
-            app:DrawableHeight="80dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/shuang_vol_1"
-            app:CircleStartAngle="150"
             app:AngleLength="240"
             app:ArcWidth="70dp"
-            android:layout_height="wrap_content" />
-    </FrameLayout>
+            app:CircleStartAngle="150"
+            app:DrawableHeight="80dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                android:id="@+id/left1"
+                android:src="@drawable/selected_btn_vol_left" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="左声道"
+                android:textColor="#FF00C7EB"
+                android:textSize="@dimen/font_xlarge"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                android:id="@+id/right1"
+                android:src="@drawable/selected_btn_vol_right" />
+        </LinearLayout>
+    </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"></LinearLayout>
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <com.msx7.android.tclient.ui.widget.CircleRectShape
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shuang_vol_1"
+            app:AngleLength="240"
+            app:ArcWidth="70dp"
+            app:CircleStartAngle="150"
+            app:DrawableHeight="80dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                android:id="@+id/left2"
+                android:src="@drawable/selected_btn_vol_left" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="右声道"
+                android:textColor="#FF00C7EB"
+                android:textSize="@dimen/font_xlarge"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                android:id="@+id/right2"
+                android:src="@drawable/selected_btn_vol_right" />
+        </LinearLayout>
+    </LinearLayout>
+
 </LinearLayout>

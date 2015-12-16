@@ -22,6 +22,8 @@ import android.view.View;
 
 import com.msx7.android.tclient.R;
 
+import java.util.Arrays;
+
 
 /**
  * Created by Josn on 2015/10/31.
@@ -263,6 +265,16 @@ public class CircleRectShape extends View {
 
     }
 
+    int[] colors = new int[]{
+            0xFF00C7EB,
+            0x1000C7EB,
+            0xFF00C7EB
+    };
+    float[] dirs = new float[]{
+            0.1f, 0.2f, 1.0f
+    };
+
+
     /**
      * 画旋转刻度
      *
@@ -285,26 +297,12 @@ public class CircleRectShape extends View {
         Path circle = new Path();
         circle.addCircle(0, 0, ArcWidth * 0.1f, Path.Direction.CCW);
         _paint.setPathEffect(new PathDashPathEffect(circle, 2, 1, PathDashPathEffect.Style.ROTATE));
-
-        int length = (int) angle / 36;
-
-        for (float i = startAngle; i < startAngle + AngleLength; i += length) {
-            Log.d("Angle", "----   " + (i % 360) / 36.0f);
+        if (startAngle + angle < 360) {
+            dirs[dirs.length - 1] = (startAngle + angle) / 360.0f;
+        } else {
+            dirs[dirs.length - 1] = 1.0f;
         }
-        SweepGradient gradient = new SweepGradient(rect.centerX(), rect.centerY(), new int[]{
-                0xFF00C7EB,
-                0xFF00C7EB,
-                0x1000C7EB,
-                0x2500C7EB,
-                0x3000C7EB,
-                0x5000C7EB,
-                0x6000C7EB,
-                0x7000C7EB,
-                0xAA00C7EB,
-                0xFF00C7EB
-        }, new float[]{
-                0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f
-        });
+        SweepGradient gradient = new SweepGradient(rect.centerX(), rect.centerY(), colors, dirs);
         _paint.setShader(gradient);
 
         canvas.drawArc(_rect, startAngle, angle, false, _paint);
