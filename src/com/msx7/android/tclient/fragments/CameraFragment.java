@@ -11,13 +11,13 @@ import com.android.pc.util.Handler_Inject;
 import com.msx7.android.tclient.R;
 
 /**
- * Created by xiaowei on 2015/12/15.
+ * Created by Josn on 2015/12/19.
  */
-public class TouchFragment extends Fragment implements View.OnTouchListener {
+public class CameraFragment extends Fragment{
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_touch, null);
+        View rootView = inflater.inflate(R.layout.fragment_camera, null);
         Handler_Inject.injectFragment(this, rootView);
         return rootView;
     }
@@ -25,13 +25,7 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.findViewById(R.id.touch).setOnTouchListener(this);
     }
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
 
-
-        return true;
-    }
 }

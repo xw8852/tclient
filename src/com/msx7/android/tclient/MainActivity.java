@@ -13,6 +13,8 @@ import com.android.pc.ioc.inject.InjectListener;
 import com.android.pc.ioc.inject.InjectMethod;
 import com.android.pc.ioc.inject.InjectView;
 import com.android.pc.ioc.view.listener.OnClick;
+import com.msx7.android.tclient.fragments.CameraFragment;
+import com.msx7.android.tclient.fragments.TouchFragment;
 import com.msx7.android.tclient.fragments.VolFragment;
 import com.msx7.android.tclient.ui.widget.TitleView;
 
@@ -65,19 +67,31 @@ public class MainActivity extends Activity {
                 curFragment = null;
                 break;
             case R.id.btn2:
+                if (fragments[1] == null) {
+                    fragments[1] = new VolFragment();
+                    getFragmentManager().beginTransaction().add(R.id.content, fragments[1]).commit();
+                } else {
+                    getFragmentManager().beginTransaction().show(fragments[1]).commit();
+                }
+                curFragment = fragments[1];
+                break;
+            case R.id.btn3:
                 if (fragments[2] == null) {
-                    fragments[2] = new VolFragment();
+                    fragments[2] = new TouchFragment();
                     getFragmentManager().beginTransaction().add(R.id.content, fragments[2]).commit();
                 } else {
                     getFragmentManager().beginTransaction().show(fragments[2]).commit();
                 }
                 curFragment = fragments[2];
                 break;
-            case R.id.btn3:
-                curFragment = null;
-                break;
             case R.id.btn4:
-                curFragment = null;
+                if (fragments[3] == null) {
+                    fragments[3] = new CameraFragment();
+                    getFragmentManager().beginTransaction().add(R.id.content, fragments[3]).commit();
+                } else {
+                    getFragmentManager().beginTransaction().show(fragments[3]).commit();
+                }
+                curFragment = fragments[3];
                 break;
             case R.id.btn5:
                 curFragment = null;
