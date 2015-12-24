@@ -29,7 +29,7 @@ import com.msx7.android.tclient.fragments.VolFragment;
 import com.msx7.android.tclient.ui.widget.TitleView;
 
 @InjectLayer(R.layout.activity_main)
-public class MainActivity extends Activity  implements View.OnTouchListener{
+public class MainActivity extends Activity implements View.OnTouchListener {
     @InjectView(value = R.id.bottomBar)
     LinearLayout btnGroup;
     @InjectView(value = R.id.btn1)
@@ -93,12 +93,9 @@ public class MainActivity extends Activity  implements View.OnTouchListener{
             PopupWindow popupWindow = new PopupWindow(menu,
                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
             // 如果不设置PopupWindow的背景，无论是点击外部区域还是Back键都无法dismiss弹框
-            // 我觉得这里是API的一个bug
             popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
             // 设置好参数之后再show
             popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
-
         }
     };
 
@@ -116,6 +113,7 @@ public class MainActivity extends Activity  implements View.OnTouchListener{
         switch (v.getId()) {
             case R.id.btn1:
                 curFragment = null;
+                sendHomeAction();
                 break;
             case R.id.btn2:
                 if (fragments[1] == null) {
@@ -146,8 +144,22 @@ public class MainActivity extends Activity  implements View.OnTouchListener{
                 break;
             case R.id.btn5:
                 curFragment = null;
+                sendBackAction();
                 break;
         }
     }
 
+    /**
+     * 发送点击Home键
+     */
+    public void sendHomeAction() {
+        //TODO:
+    }
+
+    /**
+     * 发送点击返回键
+     */
+    public void sendBackAction() {
+        //TODO:
+    }
 }
