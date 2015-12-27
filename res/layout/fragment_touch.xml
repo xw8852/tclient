@@ -2,7 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/touch"
+    android:gravity="center"
     android:orientation="vertical">
 
+    <ImageView
+        android:layout_width="200dp"
+        android:id="@+id/touch"
+        android:src="@drawable/background_camera_mobile"
+        android:scaleType="centerCrop"
+        android:layout_height="355dp"/>
 </LinearLayout>

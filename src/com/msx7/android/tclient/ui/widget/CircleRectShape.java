@@ -19,6 +19,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 
 import com.msx7.android.tclient.R;
 
@@ -38,6 +40,7 @@ public class CircleRectShape extends View {
     private float startAngle = 120;
     private float AngleLength = 120;
     private float _angle = 0;
+
 
     //    CircleAngleAnimation animation;
     Drawable drawable;
@@ -138,13 +141,84 @@ public class CircleRectShape extends View {
                     _angle = (float) (Math.acos(cosa) * 180 / Math.PI);
                 }
 
-
+                dispatchAngleListener();
                 invalidate();
 
                 break;
         }
 
         return true;
+    }
+
+    int lastAngle = -1;
+
+    private void dispatchAngleListener() {
+        int angle = (int) (_angle * 100 / AngleLength);
+        Log.d("Angle", "------ _angle  " + _angle);
+        /**
+         * 某些不知原因的特殊状况会导致angle超过上限100，特此在做修正
+         */
+        angle = Math.max(0, Math.min(100, angle));
+        if (angle == lastAngle) return;
+        lastAngle = angle;
+        Log.d("Angle", "angle  " + angle);
+        if (listener != null) listener.doAngle(angle);
+    }
+
+    AngleAnimation angleAnimation;
+
+    /**
+     * 设置当前的角度 0~100
+     *
+     * @param angle angle 小于 0 则以0计算，angle大于100 则以100计算
+     */
+    public void setAngle(int angle) {
+        // 修正设置的角度，防止设置的角度超出上限
+        angle = Math.max(0, Math.min(100, angle));
+        lastAngle = angle;
+        if (angleAnimation != null) angleAnimation.cancel();
+        angleAnimation = new AngleAnimation(_angle, angle * AngleLength / 100);
+        startAnimation(angleAnimation);
+//        _angle = angle * AngleLength / 100;
+        invalidate();
+    }
+
+    class AngleAnimation extends Animation {
+        float startAngle;
+        float endAngle;
+
+        public AngleAnimation(float startAngle, float endAngle) {
+            this.startAngle = startAngle;
+            this.endAngle = endAngle;
+            setDuration(400);
+        }
+
+        @Override
+        protected void applyTransformation(float interpolatedTime, Transformation t) {
+            super.applyTransformation(interpolatedTime, t);
+            _angle = interpolatedTime * (endAngle - startAngle) + startAngle;
+            invalidate();
+        }
+    }
+
+    /**
+     * @return 当前旋转的角度 0~100
+     */
+    public int getAngle() {
+        if (lastAngle == 0) {
+            lastAngle = (int) (_angle * 100 / AngleLength);
+        }
+        return Math.max(0, lastAngle);
+    }
+
+    IAngleListener listener;
+
+    public IAngleListener getListener() {
+        return listener;
+    }
+
+    public void setListener(IAngleListener listener) {
+        this.listener = listener;
     }
 
     /**
@@ -332,5 +406,10 @@ public class CircleRectShape extends View {
         float[] dsts = new float[2];
         matrix.mapPoints(dsts, new float[]{pointF.x, pointF.y});
         return new PointF(dsts[0], dsts[1]);
+    }
+
+
+    public interface IAngleListener {
+        void doAngle(int angle);
     }
 }

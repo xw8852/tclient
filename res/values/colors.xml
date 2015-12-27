@@ -14,4 +14,8 @@
     <color name="font_color_dark">#333333</color>
     <color name="font_color_medium">#666666</color>
     <color name="font_color_light">#999999</color>
+    <color name="grey_5">#ff4b4f54</color>
+    <color name="accent_blue_light">#ffa0c8ed</color>
+    <color name="grey_1">#ffa5a7aa</color>
+
 </resources>

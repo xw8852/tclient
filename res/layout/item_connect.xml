@@ -4,7 +4,10 @@
     android:layout_height="wrap_content"
     android:gravity="center"
     android:orientation="horizontal"
-    android:padding="6dp">
+    android:paddingBottom="6dp"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:paddingTop="6dp">
 
 
     <TextView
@@ -17,9 +20,14 @@
     <ProgressBar
         android:id="@+id/progressBar"
         style="@style/mProgress_circle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
         android:layout_marginRight="12dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_weight="1" />
 
     <ImageView
         android:id="@+id/status"

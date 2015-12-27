@@ -11,11 +11,9 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.TextView;
 
 import com.android.pc.ioc.inject.InjectInit;
 import com.android.pc.ioc.inject.InjectLayer;
@@ -23,10 +21,22 @@ import com.android.pc.ioc.inject.InjectListener;
 import com.android.pc.ioc.inject.InjectMethod;
 import com.android.pc.ioc.inject.InjectView;
 import com.android.pc.ioc.view.listener.OnClick;
+import com.msx7.android.tclient.common.TApplication;
 import com.msx7.android.tclient.fragments.CameraFragment;
 import com.msx7.android.tclient.fragments.TouchFragment;
 import com.msx7.android.tclient.fragments.VolFragment;
+import com.msx7.android.tclient.ui.ConnectPopupWindow;
 import com.msx7.android.tclient.ui.widget.TitleView;
+
+import com.msx7.josn.tvconnection.action.EmptyBody;
+import com.msx7.josn.tvconnection.mima.common.util.ByteUtil;
+import com.msx7.josn.tvconnection.pack.Code;
+import com.msx7.josn.tvconnection.pack.message.Message;
+import com.msx7.josn.tvconnection.pack.message.MessageHead;
+import com.msx7.josn.tvconnection.pack.message.impl.MessageHeadImpl;
+import com.msx7.josn.tvconnection.pack.message.impl.MessageImpl;
+
+import java.util.Arrays;
 
 @InjectLayer(R.layout.activity_main)
 public class MainActivity extends Activity implements View.OnTouchListener {
@@ -51,19 +61,28 @@ public class MainActivity extends Activity implements View.OnTouchListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH, WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH);
         super.onCreate(savedInstanceState);
+    }
 
-
+    public void setTitle(String title) {
+        mTitleBar.setTitle(title);
     }
 
     @InjectInit
     void init() {
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH, WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH);
         mTitleBar.setLeftImg(R.drawable.selected_btn_setting, menuListener);
         menu = getLayoutInflater().inflate(R.layout.layout_menu, null);
         ((View) mTitleBar.getParent()).setOnTouchListener(this);
-
+        if (TApplication.getInstance().getClient() != null && TApplication.getInstance().getClient().session.isConnected()) {
+            mTitleBar.setTitle(TApplication.getInstance().getCurrentInfo().name);
+            return;
+        }
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                new ConnectPopupWindow(mTitleBar).showPopupWindow();
+            }
+        }, 200);
     }
 
     @Override
@@ -104,6 +123,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
                     ids = {R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4, R.id.btn5},
                     listeners = {OnClick.class}
             ))
+
     public void onClick(View v) {
         v.setSelected(true);
         if (cur == v) return;
@@ -114,6 +134,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
             case R.id.btn1:
                 curFragment = null;
                 sendHomeAction();
+                v.setSelected(false);
                 break;
             case R.id.btn2:
                 if (fragments[1] == null) {
@@ -144,6 +165,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
                 break;
             case R.id.btn5:
                 curFragment = null;
+                v.setSelected(false);
                 sendBackAction();
                 break;
         }
@@ -153,13 +175,18 @@ public class MainActivity extends Activity implements View.OnTouchListener {
      * 发送点击Home键
      */
     public void sendHomeAction() {
-        //TODO:
+        MessageHead head = new MessageHeadImpl("".getBytes(), MessageHead.HEAD_LENGTH + 1, Code.ACTION_SYSTEM_HOME, 1);
+        Message message = new MessageImpl(head, new EmptyBody());
+        TApplication.getInstance().sendMessage(message);
+
     }
 
     /**
      * 发送点击返回键
      */
     public void sendBackAction() {
-        //TODO:
+        MessageHead head = new MessageHeadImpl("".getBytes(), MessageHead.HEAD_LENGTH + 1, Code.ACTION_SYSTEM_BACK, 1);
+        Message message = new MessageImpl(head, new EmptyBody());
+        TApplication.getInstance().sendMessage(message);
     }
 }

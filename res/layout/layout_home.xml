@@ -1,20 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="200dp"
     android:layout_height="wrap_content"
     android:background="@drawable/black_ground"
-    android:gravity="center"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
     android:padding="6dp">
 
-    <include layout="@layout/item_connect" />
-
-    <ImageView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/selected"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/connect_h" />
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <include layout="@layout/item_connect" />
+
+        <ImageView
+            android:id="@+id/divide1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/connect_h" />
+    </LinearLayout>
 
     <TextView
+        android:id="@+id/divide2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
@@ -24,10 +34,17 @@
         android:text="请选择盒子"
         android:textColor="@color/font_color_medium" />
 
-    <include layout="@layout/item_connect" />
+    <TextView
+        android:id="@+id/add"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="6dp"
+        android:text="添加盒子" />
 
-    <include layout="@layout/item_connect" />
-
-    <include layout="@layout/item_connect" />
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
