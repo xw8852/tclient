@@ -57,9 +57,34 @@ public class ConnectPopupWindow implements IList<ConnectPopupWindow.ConnectInfo>
         binderListView = new BinderListView<ConnectInfo>(listView).setIList(this);
         TApplication.getInstance().addStatusHandler(this);
         setData();
+
+
     }
 
     void setData() {
+
+        /**
+         * 如果存在上次的连接信息，或者当前的连接信息，在上面一行，显示
+         */
+        final ConnectInfo info = TApplication.getInstance().getCurrentInfo();
+        if (info != null) {
+            selected.setVisibility(View.VISIBLE);
+            selected.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    connect(info);
+                }
+            });
+            holder.title.setText(info.name);
+            holder.progressBar.setVisibility(View.INVISIBLE);
+            if (TApplication.getInstance().getClient() != null && TApplication.getInstance().getClient().session != null
+                    && TApplication.getInstance().getClient().session.isConnected()) {
+                holder.status.setImageResource(R.drawable.connected);
+            } else {
+                holder.status.setImageResource(R.drawable.notconnected);
+            }
+
+        }
         binderListView.setData(TApplication.getInstance().getAllConnects());
         /**
          * 稍作延迟，以确保能够得到正确的高度

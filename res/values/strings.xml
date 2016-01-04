@@ -3,4 +3,6 @@
     <string name="vol_left">左声道</string>
     <string name="vol_right">右声道</string>
     <string name="vol_double">双声道</string>
+    <string name="microphone">话筒</string>
+    <string name="monitoring">远程监控</string>
 </resources>

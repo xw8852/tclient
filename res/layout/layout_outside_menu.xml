@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:background="@drawable/background"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:drawableTop="@drawable/icon_microphone"
+        android:id="@+id/microphone"
+        android:text="@string/microphone"
+        android:padding="@dimen/text_padding_size"
+        android:drawablePadding="@dimen/text_padding_size"
+        android:textColor="@color/white"
+        android:textSize="@dimen/font_medium"
+        android:gravity="center"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:id="@+id/monitoring"
+        android:textSize="@dimen/font_medium"
+        android:drawableTop="@drawable/icon_monitoring"
+        android:drawablePadding="@dimen/text_padding_size"
+        android:text="@string/monitoring"
+        android:textColor="@color/white"
+        android:padding="@dimen/text_padding_size"
+        android:gravity="center"
+        android:layout_height="wrap_content" />
+</LinearLayout>
