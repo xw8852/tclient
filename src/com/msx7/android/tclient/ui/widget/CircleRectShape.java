@@ -140,8 +140,8 @@ public class CircleRectShape extends View {
                     float cosa = getCosA(dst, center, point);
                     _angle = (float) (Math.acos(cosa) * 180 / Math.PI);
                 }
-
-                dispatchAngleListener();
+                if (event.getAction() == MotionEvent.ACTION_UP)
+                    dispatchAngleListener();
                 invalidate();
 
                 break;

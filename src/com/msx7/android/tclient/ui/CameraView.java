@@ -120,7 +120,7 @@ public class CameraView extends ImageView {
                 dst.right = x + src.width() / 2;
                 dst.bottom = y + src.height() / 2;
 
-                if (lisenter != null) {
+                if (lisenter != null && event.getAction()==MotionEvent.ACTION_UP) {
                     //修正x,y 始其起始值为0
                     float _x = x - terminal.left;
                     float _y = y - terminal.top;

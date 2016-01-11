@@ -58,7 +58,10 @@ public class ConnectPopupWindow implements IList<ConnectPopupWindow.ConnectInfo>
         TApplication.getInstance().addStatusHandler(this);
         setData();
 
+    }
 
+    public boolean isShowing() {
+        return popupWindow.isShowing();
     }
 
     void setData() {
@@ -118,7 +121,6 @@ public class ConnectPopupWindow implements IList<ConnectPopupWindow.ConnectInfo>
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_BACK) {
-                    TApplication.getInstance().removeStatusHandler(ConnectPopupWindow.this);
                     popupWindow.dismiss();
                     ((Activity) v.getContext()).finish();
                 }
@@ -167,7 +169,6 @@ public class ConnectPopupWindow implements IList<ConnectPopupWindow.ConnectInfo>
         TApplication.getInstance().save(info);
         setData();
         selected.setVisibility(View.VISIBLE);
-        selected.setOnClickListener(null);
         holder.title.setText(info.name);
         holder.progressBar.setVisibility(View.VISIBLE);
         holder.status.setImageResource(R.drawable.connected);
@@ -191,9 +192,10 @@ public class ConnectPopupWindow implements IList<ConnectPopupWindow.ConnectInfo>
     public void handStatus(int status, IoSession ioSession) {
         if (status == STATUC_CONNECT) {
             popupWindow.dismiss();
+            holder.progressBar.setVisibility(View.GONE);
+
             ((MainActivity) view.getContext()).setTitle(TApplication.getInstance().getCurrentInfo().name);
             Toast.makeText(TApplication.getInstance(), "连接成功", Toast.LENGTH_SHORT).show();
-            TApplication.getInstance().removeStatusHandler(ConnectPopupWindow.this);
         }
     }
 

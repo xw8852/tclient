@@ -13,6 +13,8 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -85,6 +87,11 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+          /*set it to be no title*/
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+       /*set it to be full screen*/
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     public void setTitle(String title) {
@@ -104,10 +111,11 @@ public class MainActivity extends Activity implements View.OnTouchListener {
             root.getHitRect(outSide);
             return;
         }
+        connectPopupWindow = new ConnectPopupWindow(mTitleBar);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                new ConnectPopupWindow(mTitleBar).showPopupWindow();
+                connectPopupWindow.showPopupWindow();
                 root.getHitRect(outSide);
             }
         }, 200);
@@ -115,12 +123,15 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         TApplication.getInstance().addStatusHandler(tcpStatusHandler);
     }
 
+    ConnectPopupWindow connectPopupWindow;
+
     MinaClientHandler.IStatusHandler tcpStatusHandler = new MinaClientHandler.IStatusHandler() {
         @Override
         public void handStatus(int status, IoSession ioSession) {
             //连接结束，或者连接异常
             if (status == STATUC_ERROR || status == STATUC_FINISH) {
-                new ConnectPopupWindow(mTitleBar).showPopupWindow();
+                if (!connectPopupWindow.isShowing())
+                    connectPopupWindow.showPopupWindow();
             } else if (status == STATUC_CONNECT) {
                 //TODO:连接成功
             }
@@ -178,6 +189,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
             TApplication.getInstance().sendMessage(message);
         }
     };
+
     View.OnClickListener menuItemListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -190,7 +202,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
                 case R.id.btn2:
                     //TODO:切换连接设备
 //                    ToastUtil.showToastShort("点击了  切换连接设备");
-                    new ConnectPopupWindow(mTitleBar).showPopupWindow();
+                    connectPopupWindow.showPopupWindow();
                     break;
                 case R.id.btn3:
                     //TODO:盒子配置信息
@@ -262,17 +274,21 @@ public class MainActivity extends Activity implements View.OnTouchListener {
             ))
 
     public void onClick(View v) {
+        if (v.getId() == R.id.btn1) {
+            sendHomeAction();
+            return;
+        } else if (v.getId() == R.id.btn5) {
+            sendBackAction();
+            return;
+        }
         v.setSelected(true);
+        if (cur == v) return;
+        if (cur != null) cur.setSelected(false);
         if (cur == v) return;
         if (cur != null) cur.setSelected(false);
         if (curFragment != null) getFragmentManager().beginTransaction().hide(curFragment).commit();
         cur = v;
         switch (v.getId()) {
-            case R.id.btn1:
-                curFragment = null;
-                sendHomeAction();
-                v.setSelected(false);
-                break;
             case R.id.btn2:
                 if (fragments[1] == null) {
                     fragments[1] = new VolFragment();
@@ -299,11 +315,6 @@ public class MainActivity extends Activity implements View.OnTouchListener {
                     getFragmentManager().beginTransaction().show(fragments[3]).commit();
                 }
                 curFragment = fragments[3];
-                break;
-            case R.id.btn5:
-                curFragment = null;
-                v.setSelected(false);
-                sendBackAction();
                 break;
         }
     }

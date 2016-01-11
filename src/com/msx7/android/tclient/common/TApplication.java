@@ -158,15 +158,14 @@ public class TApplication extends Application implements IStatusHandler {
 
     @Override
     public void handStatus(final int status, final IoSession ioSession) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                for (IStatusHandler handler : handlers) {
-                    handler.handStatus(status, ioSession);
+        for (final IStatusHandler handler1 : handlers) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    handler1.handStatus(status, ioSession);
                 }
-            }
-        });
-
+            });
+        }
     }
 
     List<IStatusHandler> handlers = new ArrayList<IStatusHandler>();

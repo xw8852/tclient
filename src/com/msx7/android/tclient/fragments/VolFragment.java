@@ -14,6 +14,7 @@ import com.android.pc.ioc.inject.InjectMethod;
 import com.android.pc.ioc.inject.InjectView;
 import com.android.pc.ioc.view.listener.OnClick;
 import com.android.pc.util.Handler_Inject;
+import com.google.gson.Gson;
 import com.msx7.android.tclient.R;
 import com.msx7.android.tclient.common.DefaultMessageHandler;
 import com.msx7.android.tclient.common.TApplication;
@@ -98,6 +99,7 @@ public class VolFragment extends Fragment implements CircleRectShape.IAngleListe
                     ) {
                 VolBody body = new VolBody();
                 body.decoder(msg.getMessageBody().encode());
+                Log.d("MSG", new Gson().toJson(body));
                 if (body.isSingle) {
                     setMode(MODE_VOL_SINGLE);
                 } else {
@@ -106,7 +108,6 @@ public class VolFragment extends Fragment implements CircleRectShape.IAngleListe
                 if (body.isMute) {
                     vol.setSelected(true);
                     vol.setImageResource(R.drawable.btn_vol_mute);
-
                 } else {
                     vol.setSelected(false);
                     vol.setImageResource(R.drawable.btn_vol);
@@ -124,6 +125,7 @@ public class VolFragment extends Fragment implements CircleRectShape.IAngleListe
 
     /**
      * 点击四个左右的按钮，切换声道
+     *
      * @param v
      */
     @InjectMethod(
@@ -132,16 +134,26 @@ public class VolFragment extends Fragment implements CircleRectShape.IAngleListe
                     listeners = {OnClick.class}
             ))
     public void onClick(View v) {
-        if (mode == MODE_VOL_SINGLE) {
-            setMode(MODE_VOL_DOUBLE);
-        } else {
-            setMode(MODE_VOL_SINGLE);
+        switch (v.getId()) {
+            case R.id.left1:
+                circleLeft.setAngle(circleLeft.getAngle() - 1);
+                break;
+            case R.id.left2:
+                circleRight.setAngle(circleRight.getAngle() - 1);
+                break;
+            case R.id.right1:
+                circleLeft.setAngle(circleLeft.getAngle() + 1);
+                break;
+            case R.id.right2:
+                circleRight.setAngle(circleRight.getAngle() + 1);
+                break;
         }
-        sendMode();
+        doAngle(-1);
     }
 
     /**
      * 点击下面声道按钮，切换声道
+     *
      * @param v
      */
     @InjectMethod(
@@ -157,6 +169,7 @@ public class VolFragment extends Fragment implements CircleRectShape.IAngleListe
         }
         sendMode();
     }
+
     void setMode(int type) {
         if (type == MODE_VOL_SINGLE) {
             mode = MODE_VOL_SINGLE;
@@ -175,6 +188,7 @@ public class VolFragment extends Fragment implements CircleRectShape.IAngleListe
 
     /**
      * 是否静音  isSelected true 表示静音
+     *
      * @param v
      */
     @InjectMethod(
@@ -192,7 +206,6 @@ public class VolFragment extends Fragment implements CircleRectShape.IAngleListe
         }
         sendMode();
     }
-
 
 
     @Override

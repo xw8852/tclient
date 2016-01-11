@@ -3,6 +3,7 @@ package com.msx7.android.tclient.fragments;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -73,10 +74,13 @@ public class TouchFragment extends Fragment implements View.OnTouchListener, Mes
         }
     }
 
+    long lastTime;
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                lastTime = -1;
             case MotionEvent.ACTION_MOVE:
             case MotionEvent.ACTION_UP:
                 byte action = 0;
@@ -95,7 +99,14 @@ public class TouchFragment extends Fragment implements View.OnTouchListener, Mes
                     Log.d("MSG", "y " + event.getY(i) + "," + (int) _y);
                     infos[i] = new TouchBody.TouchInfo(action, (int) _x, (int) _y);
                 }
-                sendMotionData(infos);
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    //滑动，每100毫秒内响应一次
+                    if (lastTime > -1 && System.currentTimeMillis() - lastTime > 100) {
+                        sendMotionData(infos);
+                    }
+                    lastTime = System.currentTimeMillis();
+                } else
+                    sendMotionData(infos);
                 break;
         }
 
