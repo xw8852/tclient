@@ -16,7 +16,10 @@ import android.widget.ImageView;
 import com.msx7.android.tclient.R;
 
 /**
- * Created by Josn on 2015/12/19.
+ * 文件名: CameraView.java
+ * 描  述:
+ * 作  者：Josn@憬承
+ * 时  间：2016/1/25
  */
 public class CameraView extends ImageView {
     public CameraView(Context context) {
@@ -105,10 +108,12 @@ public class CameraView extends ImageView {
     float lastHor = Integer.MAX_VALUE;
     float lastVel = Integer.MAX_VALUE;
 
+    long lastTime=-1;
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:break;
+            case MotionEvent.ACTION_DOWN:
+                lastTime=-1;break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_MOVE:
                 x = Math.min(terminal.right, Math.max(terminal.left, event.getX()));
@@ -120,13 +125,16 @@ public class CameraView extends ImageView {
                 dst.right = x + src.width() / 2;
                 dst.bottom = y + src.height() / 2;
 
-                if (lisenter != null && event.getAction()==MotionEvent.ACTION_UP) {
+                if (lisenter != null ) {
                     //修正x,y 始其起始值为0
                     float _x = x - terminal.left;
                     float _y = y - terminal.top;
                     int hor = (int) ((limited_right - limited_left) * _x / terminal.width() + limited_left);
                     int vel = (int) ((limited_top - limited_bottom) * (terminal.height()-_y) / terminal.height() + limited_bottom);
-                    if (hor != lastHor || vel != lastVel) {
+                    if ((hor != lastHor || vel != lastVel) && (
+                            event.getAction()==MotionEvent.ACTION_MOVE &&System.currentTimeMillis()-lastTime>100
+                            )) {
+                        lastTime=System.currentTimeMillis();
                         lastHor = hor;
                         lastVel = vel;
                         lisenter.rotate(hor, vel);

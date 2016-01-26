@@ -11,8 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by xiaowei on 2015/12/21.
+ * 文件名: BinderListView.java
+ * 描  述:
+ * 作  者：Josn@憬承
+ * 时  间：2016/1/25
  */
+
 public class BinderListView<T> {
     ListView mListView;
     IList<T> mListListener;

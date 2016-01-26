@@ -10,21 +10,19 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.msx7.android.tclient.ui.ConnectPopupWindow.ConnectInfo;
 
-import org.apache.mina.core.session.IoSession;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import com.msx7.josn.tvconnection.mima.client.MainMinaClient;
-import com.msx7.josn.tvconnection.mima.client.handler.MinaClientHandler;
-import com.msx7.josn.tvconnection.mima.client.handler.MinaClientHandler.IStatusHandler;
-import com.msx7.josn.tvconnection.pack.message.Message;
+import cn.edu.fudan.libvirtualinputevent.VirtualInputEvent;
+
 
 /**
- * Created by xiaowei on 2015/12/11.
+ * 文件名: TApplication.java
+ * 描  述:
+ * 作  者：Josn@憬承
+ * 时  间：2016/1/25
  */
-public class TApplication extends Application implements IStatusHandler {
+public class TApplication extends Application {
 
     static TApplication instance;
 
@@ -35,7 +33,6 @@ public class TApplication extends Application implements IStatusHandler {
         Ioc.getIoc().init(this);
         super.onCreate();
         instance = this;
-        MinaClientHandler.getInstances().setStatusHandler(this);
     }
 
     public Handler getHandler() {
@@ -46,14 +43,6 @@ public class TApplication extends Application implements IStatusHandler {
         return instance;
     }
 
-    /**
-     * 发送消息
-     *
-     * @param msg
-     */
-    public void sendMessage(Message msg) {
-        sendMessage(Arrays.asList(msg));
-    }
 
     /**
      * 保存新增的连接信息
@@ -78,19 +67,6 @@ public class TApplication extends Application implements IStatusHandler {
         getSharedPreferences().edit().putString("ConnectInfo", new Gson().toJson(infos)).commit();
     }
 
-    /**
-     * 发送消息
-     *
-     * @param msgs
-     */
-    public void sendMessage(List<Message> msgs) {
-        if (client != null && client.session.isConnected()) {
-            if (msgs == null || msgs.isEmpty()) return;
-            for (Message message : msgs) {
-                client.session.write(message);
-            }
-        }
-    }
 
     /**
      * 获取已经记录的所有连接信息
@@ -110,79 +86,45 @@ public class TApplication extends Application implements IStatusHandler {
         return preferences;
     }
 
-    public MainMinaClient getClient() {
-        return client;
+
+    /**
+     * 保存当前的连接信息
+     *
+     * @param info
+     */
+    public void saveCurrentInfo(ConnectInfo info) {
+        getSharedPreferences().edit().putString("CurrentInfo", new Gson().toJson(info)).commit();
     }
 
-    MainMinaClient client;
-
-    ConnectInfo currentInfo;
-
+    /**
+     * 获取当前连接信息
+     *
+     * @return
+     */
     public ConnectInfo getCurrentInfo() {
-        if (client == null || !client.session.isConnected())
-            return null;
-        return currentInfo;
+        String data = getSharedPreferences().getString("CurrentInfo", "");
+        return new Gson().fromJson(data, ConnectInfo.class);
     }
+
+    VirtualInputEvent mCurInputEvent;
 
     /**
-     * @param info  建立连接的相关信息
-     * @param error 设置监听，连接失败，就会触发此监听
+     * 获取当前 虚拟硬件输入 连接
      */
-    public void connect(final ConnectInfo info, final IConnectError error) {
-        currentInfo = info;
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-                if (client != null) client.session.close(true);
-                try {
-                    client = new MainMinaClient(info.ip);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    currentInfo = null;
-                    client = null;
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (error != null) {
-                                error.connectError(info);
-                            }
-                        }
-                    });
-                    //TODO:连接失败
-                } finally {
-                }
-            }
-        }.start();
-    }
-
-    @Override
-    public void handStatus(final int status, final IoSession ioSession) {
-        for (final IStatusHandler handler1 : handlers) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    handler1.handStatus(status, ioSession);
-                }
-            });
+    public VirtualInputEvent getVirtualInputEvent() {
+        if (mCurInputEvent == null) {
+            if (getCurrentInfo() == null) return null;
+            mCurInputEvent = new VirtualInputEvent(getCurrentInfo().ip);
         }
+        return mCurInputEvent;
     }
-
-    List<IStatusHandler> handlers = new ArrayList<IStatusHandler>();
-
     /**
-     * @param handler 监听当前连接的状态
+     * 销毁 当前 虚拟硬件输入 连接
      */
-    public void addStatusHandler(IStatusHandler handler) {
-        handlers.add(handler);
+    public void destoryVirtualInputEvent() {
+        if (mCurInputEvent == null) return;
+        mCurInputEvent.Destroy();
+        mCurInputEvent = null;
     }
 
-    public void removeStatusHandler(IStatusHandler handler) {
-        handlers.remove(handler);
-
-    }
-
-    public interface IConnectError {
-        void connectError(ConnectInfo info);
-    }
 }

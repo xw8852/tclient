@@ -7,9 +7,9 @@ import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,18 +31,14 @@ import com.msx7.android.tclient.fragments.TouchFragment;
 import com.msx7.android.tclient.fragments.VolFragment;
 import com.msx7.android.tclient.ui.ConnectPopupWindow;
 import com.msx7.android.tclient.ui.widget.TitleView;
-
 import com.msx7.android.tclient.utils.ToastUtil;
-import com.msx7.josn.tvconnection.action.EmptyBody;
-import com.msx7.josn.tvconnection.mima.client.handler.MinaClientHandler;
-import com.msx7.josn.tvconnection.pack.Code;
-import com.msx7.josn.tvconnection.pack.message.Message;
-import com.msx7.josn.tvconnection.pack.message.MessageHead;
-import com.msx7.josn.tvconnection.pack.message.impl.MessageHeadImpl;
-import com.msx7.josn.tvconnection.pack.message.impl.MessageImpl;
 
-import org.apache.mina.core.session.IoSession;
-
+/**
+ * 文件名: MainActivity.java
+ * 描  述:
+ * 作  者：Josn@憬承
+ * 时  间：2016/1/25
+ */
 @InjectLayer(R.layout.activity_main)
 public class MainActivity extends Activity implements View.OnTouchListener {
     @InjectView(value = R.id.bottomBar)
@@ -104,50 +100,45 @@ public class MainActivity extends Activity implements View.OnTouchListener {
 
         final View root = ((View) mTitleBar.getParent());
         root.setOnTouchListener(this);
-        if (TApplication.getInstance().getClient() != null
-                && TApplication.getInstance().getClient().session != null
-                && TApplication.getInstance().getClient().session.isConnected()) {
-            mTitleBar.setTitle(TApplication.getInstance().getCurrentInfo().name);
-            root.getHitRect(outSide);
-            return;
+        if (TApplication.getInstance().getCurrentInfo() == null) {
+            connectPopupWindow = new ConnectPopupWindow(mTitleBar);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    connectPopupWindow.showPopupWindow();
+                    root.getHitRect(outSide);
+                }
+            }, 200);
         }
-        connectPopupWindow = new ConnectPopupWindow(mTitleBar);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                connectPopupWindow.showPopupWindow();
-                root.getHitRect(outSide);
-            }
-        }, 200);
+
         outSide_Dimen = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, getResources().getDisplayMetrics());
-        TApplication.getInstance().addStatusHandler(tcpStatusHandler);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        final View root = ((View) mTitleBar.getParent());
+        root.setOnTouchListener(this);
     }
 
     ConnectPopupWindow connectPopupWindow;
 
-    MinaClientHandler.IStatusHandler tcpStatusHandler = new MinaClientHandler.IStatusHandler() {
-        @Override
-        public void handStatus(int status, IoSession ioSession) {
-            //连接结束，或者连接异常
-            if (status == STATUC_ERROR || status == STATUC_FINISH) {
-                if (!connectPopupWindow.isShowing())
-                    connectPopupWindow.showPopupWindow();
-            } else if (status == STATUC_CONNECT) {
-                //TODO:连接成功
-            }
 
-        }
-    };
-
+    /**
+     * 外滑菜单的触摸监听
+     * @param v
+     * @param event
+     * @return
+     */
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        if (outSide == null || outSide.width() == 0 || outSide.height() == 0) {
+            v.getHitRect(outSide);
+        }
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 float minX = Math.min(Math.abs(outSide.left - event.getX()), Math.abs(outSide.right - event.getX()));
                 float minY = Math.min(Math.abs(outSide.top - event.getY()), Math.abs(outSide.bottom - event.getY()));
-//                Log.d("MSG","minx:"+minX+",minY:"+minY);
-//                Log.d("MSG","x:"+event.getX()+",y:"+event.getY());
-//                Log.d("MSG","rect:"+outSide+","+ outSide_Dimen);
                 if (minX < outSide_Dimen || minY < outSide_Dimen) {
                     isOutside = true;
                 }
@@ -171,9 +162,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         public void onClick(View v) {
             if (outSideMenu != null) outSideMenu.dismiss();
             ToastUtil.showToastShort("点击了 话筒");
-            MessageHead head = new MessageHeadImpl("".getBytes(), MessageHead.HEAD_LENGTH + 1, Code.ACTION_MICROPHONE, 1);
-            Message message = new MessageImpl(head, new EmptyBody());
-            TApplication.getInstance().sendMessage(message);
+
         }
     };
     /**
@@ -184,9 +173,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         public void onClick(View v) {
             if (outSideMenu != null) outSideMenu.dismiss();
             ToastUtil.showToastShort("点击了  远程监听");
-            MessageHead head = new MessageHeadImpl("".getBytes(), MessageHead.HEAD_LENGTH + 1, Code.ACTION_MONITORING, 1);
-            Message message = new MessageImpl(head, new EmptyBody());
-            TApplication.getInstance().sendMessage(message);
+
         }
     };
 
@@ -196,25 +183,35 @@ public class MainActivity extends Activity implements View.OnTouchListener {
             if (menuPopupWindow != null) menuPopupWindow.dismiss();
             switch (v.getId()) {
                 case R.id.btn1:
-                    //TODO:连接状态
+                    /**
+                     * 连接状态
+                     */
                     ToastUtil.showToastShort("点击了  连接状态");
                     break;
                 case R.id.btn2:
-                    //TODO:切换连接设备
-//                    ToastUtil.showToastShort("点击了  切换连接设备");
+                    /**
+                     * 切换连接设备
+                     */
+                    if (connectPopupWindow == null)
+                        connectPopupWindow = new ConnectPopupWindow(mTitleBar);
                     connectPopupWindow.showPopupWindow();
                     break;
                 case R.id.btn3:
-                    //TODO:盒子配置信息
+                    /**
+                     * 盒子配置信息
+                     */
                     ToastUtil.showToastShort("点击了  盒子配置信息");
                     break;
                 case R.id.btn4:
-                    //TODO:用户信息
+                    /**
+                     * 用户信息
+                     */
                     ToastUtil.showToastShort("点击了  用户信息");
                     break;
                 case R.id.btn5:
-                    //TODO:退出遥控器
-//                    ToastUtil.showToastShort("点击了  退出遥控器");
+                    /**
+                     *  退出遥控器
+                     */
                     finish();
                     break;
             }
@@ -230,6 +227,12 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         View view = getLayoutInflater().inflate(R.layout.layout_outside_menu, null);
         view.findViewById(R.id.monitoring).setOnClickListener(monitoringListener);
         view.findViewById(R.id.microphone).setOnClickListener(microphoneListener);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                outSideMenu.dismiss();
+            }
+        });
         outSideMenu = new PopupWindow(view,
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
         // 如果不设置PopupWindow的背景，无论是点击外部区域还是Back键都无法dismiss弹框
@@ -323,18 +326,24 @@ public class MainActivity extends Activity implements View.OnTouchListener {
      * 发送点击Home键
      */
     public void sendHomeAction() {
-        MessageHead head = new MessageHeadImpl("".getBytes(), MessageHead.HEAD_LENGTH + 1, Code.ACTION_SYSTEM_HOME, 1);
-        Message message = new MessageImpl(head, new EmptyBody());
-        TApplication.getInstance().sendMessage(message);
 
+        TApplication.getInstance().getVirtualInputEvent().VirtualKey(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_HOME);
+        TApplication.getInstance().getVirtualInputEvent().VirtualKey(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_HOME);
+
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        TApplication.getInstance().destoryVirtualInputEvent();
     }
 
     /**
      * 发送点击返回键
      */
     public void sendBackAction() {
-        MessageHead head = new MessageHeadImpl("".getBytes(), MessageHead.HEAD_LENGTH + 1, Code.ACTION_SYSTEM_BACK, 1);
-        Message message = new MessageImpl(head, new EmptyBody());
-        TApplication.getInstance().sendMessage(message);
+        TApplication.getInstance().getVirtualInputEvent().VirtualKey(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK);
+        TApplication.getInstance().getVirtualInputEvent().VirtualKey(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK);
     }
 }

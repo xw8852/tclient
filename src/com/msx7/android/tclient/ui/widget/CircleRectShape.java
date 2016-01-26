@@ -28,7 +28,10 @@ import java.util.Arrays;
 
 
 /**
- * Created by Josn on 2015/10/31.
+ * 文件名: CircleRectShape.java
+ * 描  述:
+ * 作  者：Josn@憬承
+ * 时  间：2016/1/25
  */
 public class CircleRectShape extends View {
 

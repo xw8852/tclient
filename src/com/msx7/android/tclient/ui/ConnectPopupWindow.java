@@ -2,6 +2,8 @@ package com.msx7.android.tclient.ui;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -15,21 +17,29 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.msx7.android.tclient.MainActivity;
 import com.msx7.android.tclient.R;
 import com.msx7.android.tclient.common.TApplication;
-import com.msx7.android.tclient.ui.dialog.CustomDialog;
+import com.msx7.android.tclient.ui.dialog.GuideFirstDialog;
+import com.msx7.android.tclient.ui.dialog.InputIPDialog;
+import com.msx7.android.tclient.ui.dialog.ProgressDialog;
+import com.msx7.android.tclient.ui.dialog.SendWifiDialog;
 import com.msx7.android.tclient.ui.list.BinderListView;
 import com.msx7.android.tclient.ui.list.IList;
+import com.msx7.android.tclient.utils.ToastUtil;
 
-import org.apache.mina.core.session.IoSession;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import com.msx7.josn.tvconnection.mima.client.handler.MinaClientHandler;
+import cn.edu.fudan.libconnectionwizard.ConnectionWizard;
 
 /**
- * Created by Josn on 2015/12/26.
+ * 文件名: ConnectPopupWindow.java
+ * 描  述: 盒子的连接管理对话框  PopupWindow实现
+ * 作  者：Josn@憬承
+ * 时  间：2016/1/26
  */
-public class ConnectPopupWindow implements IList<ConnectPopupWindow.ConnectInfo>, MinaClientHandler.IStatusHandler {
+
+public class ConnectPopupWindow implements IList<ConnectPopupWindow.ConnectInfo> {
     PopupWindow popupWindow;
 
     View view;
@@ -39,6 +49,7 @@ public class ConnectPopupWindow implements IList<ConnectPopupWindow.ConnectInfo>
     Holder holder;
     ListView listView;
     BinderListView binderListView;
+    ConnectionWizard mConnectionWizard;
 
     public ConnectPopupWindow(View view) {
         this.view = view;
@@ -55,17 +66,20 @@ public class ConnectPopupWindow implements IList<ConnectPopupWindow.ConnectInfo>
         add.setOnClickListener(addListener);
         listView = (ListView) root.findViewById(R.id.list);
         binderListView = new BinderListView<ConnectInfo>(listView).setIList(this);
-        TApplication.getInstance().addStatusHandler(this);
         setData();
 
     }
 
+    /**
+     * 当前PopupWindow 是否显示
+     *
+     * @return
+     */
     public boolean isShowing() {
         return popupWindow.isShowing();
     }
 
     void setData() {
-
         /**
          * 如果存在上次的连接信息，或者当前的连接信息，在上面一行，显示
          */
@@ -80,13 +94,7 @@ public class ConnectPopupWindow implements IList<ConnectPopupWindow.ConnectInfo>
             });
             holder.title.setText(info.name);
             holder.progressBar.setVisibility(View.INVISIBLE);
-            if (TApplication.getInstance().getClient() != null && TApplication.getInstance().getClient().session != null
-                    && TApplication.getInstance().getClient().session.isConnected()) {
-                holder.status.setImageResource(R.drawable.connected);
-            } else {
-                holder.status.setImageResource(R.drawable.notconnected);
-            }
-
+            holder.status.setImageResource(R.drawable.connected);
         }
         binderListView.setData(TApplication.getInstance().getAllConnects());
         /**
@@ -103,6 +111,9 @@ public class ConnectPopupWindow implements IList<ConnectPopupWindow.ConnectInfo>
         }, 10);
     }
 
+    /**
+     * 显示 PopupWindow
+     */
     public void showPopupWindow() {
         int with = view.getResources().getDisplayMetrics().widthPixels * 2 / 3;
         popupWindow = new PopupWindow(root,
@@ -127,78 +138,215 @@ public class ConnectPopupWindow implements IList<ConnectPopupWindow.ConnectInfo>
                 return false;
             }
         });
-    }
-
-    View.OnClickListener addListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            final CustomDialog dialog = new CustomDialog(v.getContext());
-            dialog.setPositiveButton("取消", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    InputMethodManager mInputMethodManager = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    mInputMethodManager.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
-                }
-            });
-            dialog.setNegativeButton("确定", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    InputMethodManager mInputMethodManager = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    mInputMethodManager.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
-                    String name = dialog.getTitleView().getText().toString().trim();
-                    String ip = dialog.getMessageView().getText().toString().trim();
-                    if (TextUtils.isEmpty(name)) {
-                        name = "VBOX";
-                    }
-                    if (!ip.matches("((?:(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))\\.){3}(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d))))")) {
-                        Toast.makeText(v.getContext(), "输入的ip地址不合法", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    ConnectInfo info = new ConnectInfo(ip, name);
-                    if (TApplication.getInstance().getAllConnects().contains(info)) {
-                        Toast.makeText(v.getContext(), "重复的IP地址", Toast.LENGTH_SHORT).show();
-                    }
-                    connect(info);
-                }
-            });
-            dialog.show();
-        }
-    };
-
-    private void connect(ConnectInfo info) {
-        TApplication.getInstance().save(info);
-        setData();
-        selected.setVisibility(View.VISIBLE);
-        holder.title.setText(info.name);
-        holder.progressBar.setVisibility(View.VISIBLE);
-        holder.status.setImageResource(R.drawable.connected);
-        TApplication.getInstance().connect(info, new TApplication.IConnectError() {
+        mConnectionWizard = ConnectionWizard.getInstance();
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
-            public void connectError(final ConnectInfo info) {
-                //TODO:连接失败
-                holder.progressBar.setVisibility(View.INVISIBLE);
-                holder.status.setImageResource(R.drawable.notconnected);
-                selected.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        connect(info);
-                    }
-                });
+            public void onDismiss() {
+                mConnectionWizard.Destroy();
+                mConnectionWizard = null;
             }
         });
     }
 
-    @Override
-    public void handStatus(int status, IoSession ioSession) {
-        if (status == STATUC_CONNECT) {
-            popupWindow.dismiss();
-            holder.progressBar.setVisibility(View.GONE);
-
-            ((MainActivity) view.getContext()).setTitle(TApplication.getInstance().getCurrentInfo().name);
-            Toast.makeText(TApplication.getInstance(), "连接成功", Toast.LENGTH_SHORT).show();
+    /**
+     * 添加新的连接
+     */
+    View.OnClickListener addListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            showFirst();
         }
+    };
+
+    /**
+     * 首次连接，询问盒子是否已经连接当前手机的wifi
+     */
+    void showFirst() {
+        final GuideFirstDialog dialog = new GuideFirstDialog(root.getContext());
+        dialog.getTitleView().setVisibility(View.GONE);
+        dialog.getMessageView().setText("是否首次连接当前VBOX");
+        dialog.setPositiveButton("否", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addNewVBOXIP();
+            }
+        });
+        dialog.setNegativeButton("向导", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showConnectVBoxAP();
+            }
+        });
+        dialog.show();
     }
 
+    /**
+     * 向导第一步：
+     * 提示用户连接VBOX上的热点
+     */
+    void showConnectVBoxAP() {
+        final GuideFirstDialog dialog = new GuideFirstDialog(root.getContext());
+        dialog.setAutoDismiss(false);
+        dialog.getTitleView().setVisibility(View.GONE);
+        dialog.getMessageView().setText("请用手机连接上VBOX的热点");
+        dialog.setPositiveButton("已连接", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                dilog = new ProgressDialog(v.getContext());
+                dilog.setCancelable(false);
+                dilog.show();
+                tryConnect();
+            }
+        });
+        dialog.setNegativeButton("打开WIFI连接", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.getContext().startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS)); //直接进入手机中的wifi网络设置界面
+            }
+        });
+        dialog.show();
+    }
+
+    Timer mTimer;
+
+    /**
+     * 检查连接，检查用户是否连接上VBOX上的热点
+     */
+    void tryConnect() {
+        mConnectionWizard.TryConnect(new ConnectionWizard.ConnectedCallback() {
+            @Override
+            public void onConnected() {
+                if (mTimer != null) mTimer.cancel();
+                mTimer = null;
+                dilog.dismiss();
+                dilog = null;
+                addSendWifi();
+            }
+        });
+        mTimer = new Timer();
+        mTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                TApplication.getInstance().getHandler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mTimer != null) mTimer.cancel();
+                        mTimer = null;
+                        dilog.dismiss();
+                        dilog = null;
+                        showConnectVBoxAP();
+                    }
+                });
+            }
+        }, 10000);
+    }
+
+    ProgressDialog dilog;
+
+    /**
+     * 提示用户输入，盒子需要连接的wifi
+     */
+    void addSendWifi() {
+        final SendWifiDialog dialog = new SendWifiDialog(root.getContext());
+
+        dialog.setPositiveButton("取消", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                InputMethodManager mInputMethodManager = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                mInputMethodManager.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
+            }
+        });
+        dialog.setNegativeButton("确定", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                InputMethodManager mInputMethodManager = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                mInputMethodManager.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
+                String name = dialog.getTitleView().getText().toString().trim();
+                String ip = dialog.getMessageView().getText().toString().trim();
+                if (!TextUtils.isEmpty(name)) {
+                    ToastUtil.showToastLong("wifi名称不能为空");
+                    addSendWifi();
+                    return;
+                }
+                if (!TextUtils.isEmpty("ip")) {
+                    ToastUtil.showToastLong("wifi密码不能为空");
+                    addSendWifi();
+                    return;
+                }
+                mConnectionWizard.SendSSID(name);
+                mConnectionWizard.SendPassword(ip);
+                addNewVBOXIP();
+            }
+        });
+        dialog.show();
+    }
+
+    /**
+     * 输入新的盒子IP地址和名称，并建立连接
+     */
+    void addNewVBOXIP() {
+        final InputIPDialog dialog = new InputIPDialog(root.getContext());
+        dialog.setPositiveButton("取消", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                InputMethodManager mInputMethodManager = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                mInputMethodManager.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
+            }
+        });
+        dialog.setNegativeButton("确定", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                InputMethodManager mInputMethodManager = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                mInputMethodManager.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
+                String name = dialog.getTitleView().getText().toString().trim();
+                String ip = dialog.getMessageView().getText().toString().trim();
+                if (TextUtils.isEmpty(name)) {
+                    name = "VBOX";
+                }
+                if (!ip.matches("((?:(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))\\.){3}(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d))))")) {
+                    Toast.makeText(v.getContext(), "输入的ip地址不合法", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                ConnectInfo info = new ConnectInfo(ip, name);
+                if (TApplication.getInstance().getAllConnects().contains(info)) {
+                    Toast.makeText(v.getContext(), "重复的IP地址", Toast.LENGTH_SHORT).show();
+                }
+                connect(info);
+            }
+        });
+        dialog.show();
+    }
+
+    /**
+     * @param info 连接选择的盒子
+     */
+    private void connect(final ConnectInfo info) {
+        TApplication.getInstance().save(info);
+        TApplication.getInstance().saveCurrentInfo(info);
+        setData();
+        selected.setVisibility(View.VISIBLE);
+        selected.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                connect(info);
+            }
+        });
+        holder.title.setText(info.name);
+        holder.progressBar.setVisibility(View.GONE);
+        holder.status.setImageResource(R.drawable.connected);
+        popupWindow.dismiss();
+    }
+
+
+    /**
+     * 等效 {@link android.widget.Adapter#getView(int, View, ViewGroup)}
+     *
+     * @param connectInfo
+     * @param item
+     * @param inflater
+     * @return
+     */
     @Override
     public View BinderData(final ConnectInfo connectInfo, View item, LayoutInflater inflater) {
         Holder holder;

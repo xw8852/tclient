@@ -5,7 +5,10 @@ import android.widget.Toast;
 import com.msx7.android.tclient.common.TApplication;
 
 /**
- * Created by Josn on 2016/1/3.
+ * 文件名: ToastUtil.java
+ * 描  述:
+ * 作  者：Josn@憬承
+ * 时  间：2016/1/25
  */
 public class ToastUtil {
     public static final void  showToastShort(String msg){

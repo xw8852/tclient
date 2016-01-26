@@ -2,7 +2,6 @@ package com.msx7.android.tclient.fragments;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,27 +13,14 @@ import com.android.pc.ioc.inject.InjectMethod;
 import com.android.pc.ioc.inject.InjectView;
 import com.android.pc.ioc.view.listener.OnClick;
 import com.android.pc.util.Handler_Inject;
-import com.google.gson.Gson;
 import com.msx7.android.tclient.R;
-import com.msx7.android.tclient.common.DefaultMessageHandler;
-import com.msx7.android.tclient.common.TApplication;
 import com.msx7.android.tclient.ui.widget.CircleRectShape;
 
-import org.apache.mina.core.session.IoSession;
-
-import com.msx7.josn.tvconnection.action.EmptyBody;
-import com.msx7.josn.tvconnection.action.VolBody;
-import com.msx7.josn.tvconnection.mima.common.util.MinaUtil;
-import com.msx7.josn.tvconnection.pack.Code;
-import com.msx7.josn.tvconnection.pack.MessageHandlerLib;
-import com.msx7.josn.tvconnection.pack.message.Message;
-import com.msx7.josn.tvconnection.pack.message.MessageHandler;
-import com.msx7.josn.tvconnection.pack.message.MessageHead;
-import com.msx7.josn.tvconnection.pack.message.impl.MessageHeadImpl;
-import com.msx7.josn.tvconnection.pack.message.impl.MessageImpl;
-
 /**
- * Created by xiaowei on 2015/12/15.
+ * 文件名: VolFragment.java
+ * 描  述:
+ * 作  者：Josn@憬承
+ * 时  间：2016/1/25
  */
 public class VolFragment extends Fragment implements CircleRectShape.IAngleListener {
 
@@ -78,8 +64,7 @@ public class VolFragment extends Fragment implements CircleRectShape.IAngleListe
         super.onViewCreated(view, savedInstanceState);
         circleLeft.setListener(this);
         circleRight.setListener(this);
-        MessageHandlerLib.getInstance().addHandler(String.valueOf(Code.ACTION_VOL_GET), new DefaultMessageHandler(volHandler));
-        MessageHandlerLib.getInstance().addHandler(String.valueOf(Code.ACTION_VOL_SET), new DefaultMessageHandler(volHandler));
+
         getMode();
     }
 
@@ -91,37 +76,7 @@ public class VolFragment extends Fragment implements CircleRectShape.IAngleListe
         }
     }
 
-    MessageHandler volHandler = new MessageHandler() {
-        @Override
-        public void handleMessage(IoSession var1, Message msg) {
-            if (msg.getMessageHead().getActionCode() == Code.ACTION_VOL_GET
-                    || msg.getMessageHead().getActionCode() == Code.ACTION_VOL_SET
-                    ) {
-                VolBody body = new VolBody();
-                body.decoder(msg.getMessageBody().encode());
-                Log.d("MSG", new Gson().toJson(body));
-                if (body.isSingle) {
-                    setMode(MODE_VOL_SINGLE);
-                } else {
-                    setMode(MODE_VOL_DOUBLE);
-                }
-                if (body.isMute) {
-                    vol.setSelected(true);
-                    vol.setImageResource(R.drawable.btn_vol_mute);
-                } else {
-                    vol.setSelected(false);
-                    vol.setImageResource(R.drawable.btn_vol);
-                }
-                if (body.volL > -1) {
-                    circleLeft.setAngle(body.volL);
-                }
-                if (body.volR > -1) {
-                    circleRight.setAngle(body.volR);
-                }
 
-            }
-        }
-    };
 
     /**
      * 点击四个左右的按钮，切换声道
@@ -213,42 +168,23 @@ public class VolFragment extends Fragment implements CircleRectShape.IAngleListe
         vol.setSelected(false);
         vol.setImageResource(R.drawable.btn_vol);
 
-        MessageHead head = new MessageHeadImpl("".getBytes(), MessageHead.HEAD_LENGTH + VolBody.LENGTH, Code.ACTION_VOL_SET, 1);
-        VolBody body = null;
-        if (mode == MODE_VOL_DOUBLE) {
-            //TODO:双声道
-            body = new VolBody(vol.isSelected(), mode == MODE_VOL_SINGLE, circleLeft.getAngle(), -1);
-        } else {
-            //TODO: 左右独立音量
-            body = new VolBody(vol.isSelected(), mode == MODE_VOL_SINGLE, circleLeft.getAngle(), circleRight.getAngle());
-        }
-        Message message = new MessageImpl(head, body);
-        TApplication.getInstance().sendMessage(MinaUtil.messageClip(message));
+
+      //TODO:发送当前音量
     }
 
     /**
      * 发送当前音量模式
      */
     void sendMode() {
-        MessageHead head = new MessageHeadImpl("".getBytes(), MessageHead.HEAD_LENGTH + VolBody.LENGTH, Code.ACTION_VOL_SET, 1);
-        VolBody body = new VolBody(vol.isSelected(), mode == MODE_VOL_SINGLE, -1, -1);
-        Message message = new MessageImpl(head, body);
-        TApplication.getInstance().sendMessage(MinaUtil.messageClip(message));
+       //TODO:发送当前音量模式
     }
 
     /**
      * 发送消息，获取当前音量模式，以及当前音量
      */
     void getMode() {
-        MessageHead head = new MessageHeadImpl("".getBytes(), MessageHead.HEAD_LENGTH + 1, Code.ACTION_VOL_GET, 1);
-        Message message = new MessageImpl(head, new EmptyBody());
-        TApplication.getInstance().sendMessage(MinaUtil.messageClip(message));
+       //TODO:发送消息，获取当前音量模式，以及当前音量
     }
 
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        Log.d("回收", "finalize---VolFragment");
-    }
 }
