@@ -18,7 +18,7 @@
         android:gravity="bottom"
         android:layout_height="wrap_content">
 
-        <EditText
+        <com.msx7.android.tclient.ui.widget.SecurityEditText
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_margin="6dp"
@@ -30,7 +30,7 @@
             android:background="#202020" />
         <TextView
             android:layout_width="60dp"
-            android:text="清空"
+            android:text="发送"
             android:id="@+id/clear"
             android:gravity="center"
             android:padding="6dp"

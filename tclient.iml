@@ -82,6 +82,7 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 23 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="user_profile_mtj_1.2" level="project" />
     <orderEntry type="library" exported="" name="library-circular-1.2.0" level="project" />
     <orderEntry type="library" exported="" name="libremoteinputmethod" level="project" />
     <orderEntry type="library" exported="" name="libconnectionwizard" level="project" />
