@@ -1,36 +1,24 @@
 package com.msx7.android.tclient.fragments;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.Service;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.pc.util.Handler_Inject;
 import com.msx7.android.tclient.R;
 import com.msx7.android.tclient.common.TApplication;
 import com.msx7.android.tclient.fragments.input.SoftKeyboard;
 import com.msx7.android.tclient.ui.widget.SecurityEditText;
 
 import cn.edu.fudan.libremoteinputmethod.RemoteInputMethod;
-import cn.edu.fudan.libvirtualinputevent.VirtualInputEvent;
 
 /**
  * 文件名: TouchFragment.java
@@ -42,7 +30,7 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
     private GestureDetector mGestureDetector;
 
     SecurityEditText mContent;
-    View mClearBtn;
+    View mSendBtn;
     RemoteInputMethod mRemoteInputMethod;
     SoftKeyboard softKeyboard;
 
@@ -50,11 +38,11 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_touch, null);
         mContent = (SecurityEditText) rootView.findViewById(R.id.content);
-        mClearBtn = rootView.findViewById(R.id.clear);
-        mClearBtn.setOnClickListener(new View.OnClickListener() {
+        mSendBtn = rootView.findViewById(R.id.send);
+        mSendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getRemoteInputMethod().InputText(mContent.getContext().toString());
+                getRemoteInputMethod().InputText(mContent.getText().toString());
             }
         });
         mContent.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -90,6 +78,7 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
                     public void run() {
 //                        Log.d("MSG", "HideRemoteSoftKeyboard");
                         getRemoteInputMethod().HideRemoteSoftKeyboard();
+                        mContent.clearFocus();
                     }
                 });
             }
@@ -141,8 +130,6 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
     GestureDetector.OnGestureListener onGestureListener = new GestureDetector.OnGestureListener() {
         @Override
         public boolean onDown(MotionEvent e) {
-            TApplication.getInstance().getVirtualInputEvent().MouseClick(0);
-//            Log.d("MSG", "onDown");
             return true;
         }
 
@@ -153,7 +140,13 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
 
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
-//            Log.d("MSG", "onSingleTapUp");
+            TApplication.getInstance().getVirtualInputEvent().MouseClick(0);
+
+            try {
+                Thread.sleep(200);
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
             TApplication.getInstance().getVirtualInputEvent().MouseClick(1);
             return true;
         }
@@ -161,7 +154,6 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 
-//            Log.d("MSG", "onScroll  " + e2.getAction());
             TApplication.getInstance().getVirtualInputEvent().MouseMove(-(int) distanceX, -(int) distanceY);
             return true;
         }
@@ -179,10 +171,6 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-//            Log.d("MSG", "ACTION_UP");
-            TApplication.getInstance().getVirtualInputEvent().MouseClick(1);
-        }
         return mGestureDetector.onTouchEvent(event);
     }
 

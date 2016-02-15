@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
@@ -13,29 +14,35 @@
         android:layout_marginRight="40dp"
         android:layout_weight="1" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:gravity="top"
         android:layout_height="wrap_content">
 
         <com.msx7.android.tclient.ui.widget.SecurityEditText
+            android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_margin="6dp"
             android:layout_weight="1"
+            android:layout_toLeftOf="@+id/send"
+            android:background="#202020"
             android:hint="点击输入文字"
-            android:id="@+id/content"
-            android:textColorHint="#424242"
             android:textColor="#424242"
-            android:background="#202020" />
+            android:textColorHint="#424242" />
+
         <TextView
+            android:id="@+id/send"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
             android:layout_width="60dp"
-            android:text="发送"
-            android:id="@+id/clear"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="6dp"
+            android:layout_marginTop="6dp"
+            android:background="#202020"
             android:gravity="center"
             android:padding="6dp"
-            android:layout_marginRight="6dp"
-            android:background="#202020"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+            android:text="发送" />
+    </RelativeLayout>
 </LinearLayout>
