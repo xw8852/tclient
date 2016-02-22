@@ -3,6 +3,7 @@ package com.msx7.android.tclient.fragments;
 import android.app.Fragment;
 import android.app.Service;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -54,7 +55,6 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
                         actionId == EditorInfo.IME_ACTION_SEARCH ||
                         actionId == EditorInfo.IME_ACTION_UNSPECIFIED) {
                     getRemoteInputMethod().Enter();
-//                    Log.d("MSG", "Enter");
                 }
                 return false;
             }
@@ -62,7 +62,6 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
         mContent.setDelKeyEventListener(new SecurityEditText.OnDelKeyEventListener() {
             @Override
             public void onDeleteClick() {
-//                Log.d("MSG", "KEYCODE_DEL");
                 getRemoteInputMethod().BackSpace();
             }
         });
@@ -76,7 +75,6 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
                 TApplication.getInstance().getHandler().post(new Runnable() {
                     @Override
                     public void run() {
-//                        Log.d("MSG", "HideRemoteSoftKeyboard");
                         getRemoteInputMethod().HideRemoteSoftKeyboard();
                         mContent.clearFocus();
                     }
@@ -88,7 +86,6 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
                 TApplication.getInstance().getHandler().post(new Runnable() {
                     @Override
                     public void run() {
-//                        Log.d("MSG", "onSoftKeyboardShow");
                         getRemoteInputMethod().ShowRemoteSoftKeyboard();
                     }
                 });
@@ -130,37 +127,47 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
     GestureDetector.OnGestureListener onGestureListener = new GestureDetector.OnGestureListener() {
         @Override
         public boolean onDown(MotionEvent e) {
+//            Log.d("MSG","-----onDown");
+
             return true;
         }
 
         @Override
         public void onShowPress(MotionEvent e) {
-
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            TApplication.getInstance().getVirtualInputEvent().MouseClick(0);
-
+//            Log.d("MSG","-----onShowPress");
+            TApplication.getInstance().getVirtualInputEvent().MouseClick(1);
             try {
                 Thread.sleep(200);
             }catch (Exception ex){
                 ex.printStackTrace();
             }
+            TApplication.getInstance().getVirtualInputEvent().MouseClick(0);
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
             TApplication.getInstance().getVirtualInputEvent().MouseClick(1);
+//            Log.d("MSG","-----Down");
+            try {
+                Thread.sleep(200);
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+            TApplication.getInstance().getVirtualInputEvent().MouseClick(0);
+//            Log.d("MSG","-----Up");
             return true;
         }
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-
+//            Log.d("MSG","-----Move");
             TApplication.getInstance().getVirtualInputEvent().MouseMove(-(int) distanceX, -(int) distanceY);
             return true;
         }
 
         @Override
         public void onLongPress(MotionEvent e) {
-
+//            Log.d("MSG","-----onLongPress");
         }
 
         @Override
