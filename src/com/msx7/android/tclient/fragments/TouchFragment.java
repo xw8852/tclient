@@ -30,6 +30,7 @@ import cn.edu.fudan.libremoteinputmethod.RemoteInputMethod;
 public class TouchFragment extends Fragment implements View.OnTouchListener {
     private GestureDetector mGestureDetector;
 
+    State mState = State.MOVE;
     SecurityEditText mContent;
     View mSendBtn;
     RemoteInputMethod mRemoteInputMethod;
@@ -75,7 +76,7 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
                 TApplication.getInstance().getHandler().post(new Runnable() {
                     @Override
                     public void run() {
-                        getRemoteInputMethod().HideRemoteSoftKeyboard();
+//                        getRemoteInputMethod().HideRemoteSoftKeyboard();
                         mContent.clearFocus();
                     }
                 });
@@ -86,7 +87,7 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
                 TApplication.getInstance().getHandler().post(new Runnable() {
                     @Override
                     public void run() {
-                        getRemoteInputMethod().ShowRemoteSoftKeyboard();
+//                        getRemoteInputMethod().ShowRemoteSoftKeyboard();
                     }
                 });
 
@@ -127,47 +128,96 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
     GestureDetector.OnGestureListener onGestureListener = new GestureDetector.OnGestureListener() {
         @Override
         public boolean onDown(MotionEvent e) {
-//            Log.d("MSG","-----onDown");
-
             return true;
         }
 
         @Override
         public void onShowPress(MotionEvent e) {
-//            Log.d("MSG","-----onShowPress");
-            TApplication.getInstance().getVirtualInputEvent().MouseClick(1);
-            try {
-                Thread.sleep(200);
-            }catch (Exception ex){
-                ex.printStackTrace();
-            }
-            TApplication.getInstance().getVirtualInputEvent().MouseClick(0);
+
         }
 
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
+            if (mState != State.MOVE) {
+                stopDrag();
+                return true;
+            }
             TApplication.getInstance().getVirtualInputEvent().MouseClick(1);
-//            Log.d("MSG","-----Down");
             try {
                 Thread.sleep(200);
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
             TApplication.getInstance().getVirtualInputEvent().MouseClick(0);
-//            Log.d("MSG","-----Up");
             return true;
         }
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-//            Log.d("MSG","-----Move");
             TApplication.getInstance().getVirtualInputEvent().MouseMove(-(int) distanceX, -(int) distanceY);
             return true;
         }
 
+        /**
+         * 长按开启拖动，再次长按/点击 取消
+         * @param e
+         */
         @Override
         public void onLongPress(MotionEvent e) {
-//            Log.d("MSG","-----onLongPress");
+            if (mState == State.MOVE) {
+                startDRAG();
+            } else {
+                stopDrag();
+            }
+        }
+
+        void stopDrag() {
+            mState = State.MOVE;
+//            TApplication.getInstance().getVirtualInputEvent().MouseClick(1);
+//            try {
+//                Thread.sleep(30);
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            }
+//            TApplication.getInstance().getVirtualInputEvent().MouseClick(0);
+//            try {
+//                Thread.sleep(30);
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            }
+//            TApplication.getInstance().getVirtualInputEvent().MouseClick(1);
+//            try {
+//                Thread.sleep(30);
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            }
+            TApplication.getInstance().getVirtualInputEvent().MouseClick(0);
+        }
+
+        /**
+         * 双击开启拖动模式
+         */
+        void startDRAG() {
+            mState = State.DRAG;
+            TApplication.getInstance().getVirtualInputEvent().MouseClick(1);
+            try {
+                Thread.sleep(30);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            TApplication.getInstance().getVirtualInputEvent().MouseClick(0);
+            try {
+                Thread.sleep(30);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            TApplication.getInstance().getVirtualInputEvent().MouseClick(1);
+            try {
+                Thread.sleep(30);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            TApplication.getInstance().getVirtualInputEvent().MouseClick(0);
         }
 
         @Override
@@ -182,4 +232,5 @@ public class TouchFragment extends Fragment implements View.OnTouchListener {
     }
 
 
+    enum State {MOVE, DRAG}
 }
