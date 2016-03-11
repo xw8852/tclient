@@ -35,6 +35,8 @@ import com.msx7.android.tclient.ui.ConnectPopupWindow;
 import com.msx7.android.tclient.ui.widget.TitleView;
 import com.msx7.android.tclient.utils.ToastUtil;
 
+import cn.edu.fudan.libvirtualinputevent.VirtualInputEvent;
+
 /**
  * 文件名: MainActivity.java
  * 描  述:
@@ -96,6 +98,22 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         mTitleBar.setTitle(title);
     }
 
+
+    /**
+     * 连接断开或未连接时显示
+     */
+    public  void showNOConnect() {
+        final View root = ((View) mTitleBar.getParent());
+        if (connectPopupWindow == null) connectPopupWindow = new ConnectPopupWindow(mTitleBar);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                connectPopupWindow.showPopupWindow();
+                root.getHitRect(outSide);
+            }
+        }, 700);
+    }
+
     @InjectInit
     void init() {
         mTitleBar.setLeftImg(R.drawable.selected_btn_setting, menuListener);
@@ -103,14 +121,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         final View root = ((View) mTitleBar.getParent());
         root.setOnTouchListener(this);
         if (TApplication.getInstance().getCurrentInfo() == null) {
-            connectPopupWindow = new ConnectPopupWindow(mTitleBar);
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    connectPopupWindow.showPopupWindow();
-                    root.getHitRect(outSide);
-                }
-            }, 200);
+            showNOConnect();
             //默认跳转到 触屏页
             onClick(btn3);
         }
@@ -166,6 +177,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
 
     /**
      * 外滑菜单的触摸监听
+     *
      * @param v
      * @param event
      * @return
@@ -366,16 +378,22 @@ public class MainActivity extends Activity implements View.OnTouchListener {
      * 发送点击Home键
      */
     public void sendHomeAction() {
-
-        TApplication.getInstance().getVirtualInputEvent().VirtualKey(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_HOME);
+        VirtualInputEvent inputEvent = TApplication.getInstance().getVirtualInputEvent();
+        if (inputEvent == null) {
+            showNOConnect();
+            return;
+        }
+        inputEvent.VirtualKey(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_HOME);
         try {
             Thread.sleep(200);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        TApplication.getInstance().getVirtualInputEvent().VirtualKey(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_HOME);
-
-
+        if (inputEvent == null) {
+            showNOConnect();
+            return;
+        }
+        inputEvent.VirtualKey(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_HOME);
     }
 
     @Override
@@ -388,12 +406,21 @@ public class MainActivity extends Activity implements View.OnTouchListener {
      * 发送点击返回键
      */
     public void sendBackAction() {
-        TApplication.getInstance().getVirtualInputEvent().VirtualKey(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK);
+        VirtualInputEvent inputEvent = TApplication.getInstance().getVirtualInputEvent();
+        if (inputEvent == null) {
+            showNOConnect();
+            return;
+        }
+        inputEvent.VirtualKey(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK);
         try {
             Thread.sleep(200);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        TApplication.getInstance().getVirtualInputEvent().VirtualKey(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK);
+        if (inputEvent == null) {
+            showNOConnect();
+            return;
+        }
+        inputEvent.VirtualKey(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK);
     }
 }
